@@ -1,0 +1,1 @@
+No one but myself is allowed to use any of the files found here until stated otherwise.
