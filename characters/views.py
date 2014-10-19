@@ -35,15 +35,8 @@ def default_people():
 def interaction(aquaintance, character, care, impact):
 	
 	interaction = Relationship.objects.get(aquaintance=aquaintance,
-									opinion__character=character, opinion__care=care)
+									opinion__character=character, opinion=care)
 
-	if impact == 'negative':
-		# They get a tick against them
-		interaction.ticks += 1
-	elif impact == 'positive':
-		# They get a tick taken away
-		interaction.ticks -= 1
-	else:
-		# Nothing happens
-		pass
+	interaction.impact = impact
 	interaction.save()
+	interaction.update()

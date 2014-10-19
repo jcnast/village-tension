@@ -20,16 +20,16 @@ class Character(models.Model):
 	def __unicode__(self, *args, **kwargs):
 		return self.first_name+' '+self.last_name
 
-	def favour(aquaintance):
+	def favour(self, aquaintance):
 
 		# all their relationships with the specific person
 		relationships = Relationship.objects.filter(aquaintance=aquaintance)
 
 		# how much shit they are taking
 		tolerance_level = 0
-		for relationship in relationship:
+		for relationship in relationships:
 			# if they are more aggravated than they can stand, the tolerance level increases
-			if relationship.aggravation > relationships.opinion.tolerance:
+			if relationship.aggravation > relationship.opinion.tolerance:
 
 				tolerance_level += relationship.aggravation / relationship.opinion.tolerance
 			# if they are less aggravated than they want to be, the tolerance level decreases
@@ -38,19 +38,25 @@ class Character(models.Model):
 				tolerance_level -= relationship.aggravation / relationship.opinion.enjoyment
 
 		# if tolerance_level is greter than tolerance_threshhold+lee_way they are an enemy
-		if tolerance_level*len(relationships) > tolerance_threshhold+lee_way:
-			if not(aquaintance in enemies):
-				enemies.append(aquaintance)
+		if tolerance_level*len(relationships) > self.tolerance_threshhold+self.lee_way:
+			if not(aquaintance in self.enemies.all()):
+				self.enemies.add(aquaintance)
+			#remove person from allies if they were there
+			if aquaintance in self.allies.all():
+				self.allies.remove(aquaintance)
 		# if tolerance_level is less than tolerance_threshhold-lee_way they are an ally
-		elif tolerance_level*len(relationships) < tolerance_threshhold-lee_way:
-			if not(aquaintance in allies):
-				allies.append(aquaintance)
+		elif tolerance_level*len(relationships) < self.tolerance_threshhold-self.lee_way:
+			if not(aquaintance in self.allies.all()):
+				self.allies.add(aquaintance)
+			#remove person from enemies if they were there
+			if aquaintance in self.enemies.all():
+				self.enemies.remove(aquaintance)
 		# else make sure the aquaintance is not in either list
 		else:
-			if aquaintance in enemies:
-				enemies.remove(aquaintance)
-			elif aquaintance in allies:
-				allies.remove(aquaintance)
+			if aquaintance in self.enemies.all():
+				self.enemies.remove(aquaintance)
+			elif aquaintance in self.allies.all():
+				self.allies.remove(aquaintance)
 
 class Opinion(models.Model):
 
@@ -79,6 +85,8 @@ class Relationship(models.Model):
 	# who the person affecting it is
 	aquaintance = models.ForeignKey(Character)
 
+	impact = models.CharField(max_length=10)
+
 	# how many times you have aggravated this person
 	ticks = models.FloatField(default=0.0) #changing value
 
@@ -87,13 +95,27 @@ class Relationship(models.Model):
 	aggravation = models.FloatField(default=0.0) #changing value
 
 	def __unicode__(self):
-		return self.character.first_name+' '+self.character.last_name+'/'+self.aquaintance.first_name+' '+self.aquaintance.last_name+' ('+self.opinion.care+')'
+		return self.opinion.character.first_name+' '+self.opinion.character.last_name+'/'+self.aquaintance.first_name+' '+self.aquaintance.last_name+' ('+self.opinion.care+')'
 
-	def save(self, *args, **kwargs):
-
-		self.ticks += 1
-		self.aggravation += 1+self.opinion.ramp*self.ticks
+	def update(self):
+		if self.impact == 'negative':
+			self.ticks += 1
+			self.aggravation += 1+self.opinion.ramp*abs(self.ticks)
+		elif self.impact == 'positive':
+			self.ticks -= 1
+			self.aggravation -= 1+self.opinion.ramp*abs(self.ticks)
 
 		self.opinion.character.favour(self.aquaintance)
 
-		super(Model, self).save(*args, **kwargs)
+		self.save()
+
+# from characters.models import *
+# from characters.views import *
+# default_people()
+# char1 = Character.objects.get(pk=5)
+# char2 = Character.objects.get(pk=3)
+# care = Opinion(character=char1, care='race',ramp=1, tolerance=1.0)
+# care.save()
+# relationship = Relationship(opinion=care, aquaintance=char2, impact='false')
+# relationship.save()
+# interaction(char2, char1, care, 'negative')
