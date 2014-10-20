@@ -66,7 +66,7 @@ class Opinion(models.Model):
 	# what they care about (political party, crimes, race, religion, family...)
 	care = models.CharField(max_length=50)
 
-	#What about that care they are interested in (negatively). A racist would have their target be the race(s) they dislike
+	#What about that care they are interested in (positively). A racist would have their target be the race(s) they dislike
 	target = models.CharField(max_length=200)
 
 	# how slowly/quickly they hate you per time you piss them off

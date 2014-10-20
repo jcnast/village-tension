@@ -83,6 +83,47 @@ def default_relations(request):
 
 	return HttpResponse('relations created')
 
+# # figure out how the interaction will work
+# def random_interaction(request):
+
+# 	people = Character.objects.all()
+
+# 	cares = ['race', 'religion', 'politics', 'family']
+
+# 	targets_race = ['black', 'white', 'asian']
+# 	targets_religion = ['catholics', 'muslims', 'athiests']
+# 	targets_politics = ['conservative', 'republican', 'other']
+# 	targets_family = ['theirs']
+
+# 	# pick a random person who 'did the action'
+# 	character = random.choice(people)
+
+# 	# pick an opinion they are affecting
+# 	care = random.choice(cares)
+
+# 	# pick a target based on what they are impacting
+# 	if care == 'race':
+# 		target = random.choice(targets_race)
+# 	elif care == 'religion':
+# 		target = random.choice(targets_religion)
+# 	elif care == 'politics':
+# 		target = random.choice(targets_politics)
+# 	elif care == 'family':
+# 		target = random.choice(targets_family)
+
+# 	# if the target is what the character likes (their target), they have a positive impact on
+# 	# others who share that target (as they likely did a good thing to it) and a negative on 
+# 	# people who don't (since they don't care about it)
+# 	character_opinion = Opinion.objects.get(character=character, care=care)
+# 	if target == character_opinion.target:
+# 		impact = 'positive'
+# 	else:
+# 		impact = 'negative'
+
+# 	for aquaintance in people:
+# 		if person != character:
+
+
 def interaction(request, aquaintance, character, care, impact):
 	
 	interaction = Relationship.objects.get(aquaintance=aquaintance,

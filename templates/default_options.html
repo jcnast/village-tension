@@ -90,7 +90,6 @@
 	$('.create').click(function(){
 
 		url = String($(this).attr('id'))
-		console.log(url)
 		$.ajax({
 			//make url dynamic for future
 			url: '/character/'+String(url)+'/',
