@@ -7,5 +7,11 @@ from characters import views
 
 # extends ^character/
 character_urls = patterns('$',
+
 	url(r'test/$', views.test),
+	url(r'default-people/$', views.default_people),
+	url(r'default-opinions/$', views.default_opinions),
+	url(r'default-relations/$', views.default_relations),
+	url(r'interaction/(?P<aquaintance>.*)/(?P<character>.*)/(?P<care>.*)/(?P<impact>.*)/$', views.interaction),
+
 )

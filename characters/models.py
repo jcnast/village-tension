@@ -61,10 +61,13 @@ class Character(models.Model):
 class Opinion(models.Model):
 
 	# who has this care
-	character = models.OneToOneField(Character)
+	character = models.ForeignKey(Character)
 
 	# what they care about (political party, crimes, race, religion, family...)
 	care = models.CharField(max_length=50)
+
+	#What about that care they are interested in (negatively). A racist would have their target be the race(s) they dislike
+	target = models.CharField(max_length=200)
 
 	# how slowly/quickly they hate you per time you piss them off
 	ramp = models.FloatField(default=0.0) #set value (float between 0.0 and 1.0)
@@ -85,7 +88,7 @@ class Relationship(models.Model):
 	# who the person affecting it is
 	aquaintance = models.ForeignKey(Character)
 
-	impact = models.CharField(max_length=10)
+	impact = models.CharField(max_length=10, blank=True, null=True)
 
 	# how many times you have aggravated this person
 	ticks = models.FloatField(default=0.0) #changing value
