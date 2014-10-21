@@ -6,7 +6,9 @@ from characters.models import *
 import random
 
 def test(request):
-	return render(request, 'default_options.html')
+	characters = Character.objects.all()
+	context = {'characters': characters}
+	return render(request, 'characters/default_options.html', context)
 
 def default_people(request):
 
@@ -83,52 +85,70 @@ def default_relations(request):
 
 	return HttpResponse('relations created')
 
-# # figure out how the interaction will work
-# def random_interaction(request):
+# figure out how the interaction will work
+def random_interaction(request):
 
-# 	people = Character.objects.all()
+	people = Character.objects.all()
 
-# 	cares = ['race', 'religion', 'politics', 'family']
+	cares = ['race', 'religion', 'politics', 'family']
 
-# 	targets_race = ['black', 'white', 'asian']
-# 	targets_religion = ['catholics', 'muslims', 'athiests']
-# 	targets_politics = ['conservative', 'republican', 'other']
-# 	targets_family = ['theirs']
+	targets_race = ['black', 'white', 'asian']
+	targets_religion = ['catholics', 'muslims', 'athiests']
+	targets_politics = ['conservative', 'republican', 'other']
+	targets_family = ['theirs']
 
-# 	# pick a random person who 'did the action'
-# 	character = random.choice(people)
+	# pick a random person who 'did the action'
+	aquaintance = random.choice(people)
+	# pick an opinion they are affecting
+	care = random.choice(cares)
 
-# 	# pick an opinion they are affecting
-# 	care = random.choice(cares)
+	# pick a target based on what they are impacting
+	if care == 'race':
+		target = random.choice(targets_race)
+	elif care == 'religion':
+		target = random.choice(targets_religion)
+	elif care == 'politics':
+		target = random.choice(targets_politics)
+	elif care == 'family':
+		target = random.choice(targets_family)
 
-# 	# pick a target based on what they are impacting
-# 	if care == 'race':
-# 		target = random.choice(targets_race)
-# 	elif care == 'religion':
-# 		target = random.choice(targets_religion)
-# 	elif care == 'politics':
-# 		target = random.choice(targets_politics)
-# 	elif care == 'family':
-# 		target = random.choice(targets_family)
+	# if the target is what the character likes (their target), they have a positive impact on
+	# others who share that target (as they likely did a good thing to it) and a negative on 
+	# people who don't (since they don't care about it)
+	aquaintance_opinion = Opinion.objects.get(character=aquaintance, care=care)
+	if target == aquaintance_opinion.target:
+		impact = 'positive'
+	else:
+		impact = 'negative'
 
-# 	# if the target is what the character likes (their target), they have a positive impact on
-# 	# others who share that target (as they likely did a good thing to it) and a negative on 
-# 	# people who don't (since they don't care about it)
-# 	character_opinion = Opinion.objects.get(character=character, care=care)
-# 	if target == character_opinion.target:
-# 		impact = 'positive'
-# 	else:
-# 		impact = 'negative'
+	for character in people:
+		if character != aquaintance:
 
-# 	for aquaintance in people:
-# 		if person != character:
+			# if the person agrees with the aquaintance, the impact remains as intended
+			# if they do not agree, the impact is reversed
+			opinion = Opinion.objects.get(character=character, care=care)
+			if opinion.target != target:
+				if impact == 'positive':
+					impact = 'negative'
+				else:
+					impact = 'positive'
 
+			interact(aquaintance, character, care, impact)
+
+	return HttpResponse('characters have randomly interacted')
 
 def interaction(request, aquaintance, character, care, impact):
-	
-	interaction = Relationship.objects.get(aquaintance=aquaintance,
-									opinion__character=character, opinion=care)
 
-	interaction.impact = impact
-	interaction.save()
-	interaction.update()
+	interact(aquaintance, character, care, impact)
+
+	return HttpResponse('characters have interacted')
+
+def interact(aquaintance, character, care, impact):
+	
+	try:
+		interaction = Relationship.objects.get(aquaintance=aquaintance, opinion__character=character, opinion__care=care)
+		interaction.impact = impact
+		interaction.save()
+		interaction.update()
+	except:
+		print 'There is no relationship on this topic between these people'

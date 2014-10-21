@@ -12,6 +12,7 @@ character_urls = patterns('$',
 	url(r'default-people/$', views.default_people),
 	url(r'default-opinions/$', views.default_opinions),
 	url(r'default-relations/$', views.default_relations),
+	url(r'random-interaction/$', views.random_interaction),
 	url(r'interaction/(?P<aquaintance>.*)/(?P<character>.*)/(?P<care>.*)/(?P<impact>.*)/$', views.interaction),
 
 )
