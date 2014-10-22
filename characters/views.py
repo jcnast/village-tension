@@ -7,7 +7,15 @@ import random
 
 def test(request):
 	characters = Character.objects.all()
-	context = {'characters': characters}
+	opinions = []
+	for character in characters:
+		cares = Opinion.objects.filter(character=character)
+		relationships = []
+		for care in cares:
+			relationship = Relationship.objects.filter(opinion=care)
+			relationships.append(relationship)
+		opinions.append(zip(cares, relationships))
+	context = {'characters': zip(characters, opinions)}
 	return render(request, 'characters/default_options.html', context)
 
 def default_people(request):
@@ -61,7 +69,7 @@ def default_opinions(request):
 				target = random.choice(targets_family)
 
 			opinion = Opinion(character=person, care=care, target=target,
-				ramp=random.randrange(0,10,1)/10, tolerance=random.randrange(1,50,2)/10, enjoyment=random.randrange(-50,-10, 1)/10)
+				ramp=(random.randrange(0,10,1)/10), tolerance=(random.randrange(10,50,2)/10), enjoyment=(random.randrange(-50,-10, 1)/10))
 			opinion.save()
 
 	return HttpResponse('opinions created')
@@ -86,7 +94,7 @@ def default_relations(request):
 	return HttpResponse('relations created')
 
 # figure out how the interaction will work
-def random_interaction(request):
+def random_interaction(): #request
 
 	people = Character.objects.all()
 
@@ -144,11 +152,8 @@ def interaction(request, aquaintance, character, care, impact):
 	return HttpResponse('characters have interacted')
 
 def interact(aquaintance, character, care, impact):
-	
-	try:
-		interaction = Relationship.objects.get(aquaintance=aquaintance, opinion__character=character, opinion__care=care)
-		interaction.impact = impact
-		interaction.save()
-		interaction.update()
-	except:
-		print 'There is no relationship on this topic between these people'
+
+	interaction = Relationship.objects.get(aquaintance=aquaintance, opinion__character=character, opinion__care=care)
+	interaction.impact = impact
+	interaction.save()
+	interaction.update()

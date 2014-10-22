@@ -85,13 +85,17 @@
 	</div>
 </div>
 <div class='row'>
-	{% for character in characters %}
-		<div class='col-lg-12'>
+	{% for character, opinions in characters %}
+		<div class='col-lg-6'>
 			<div class='panel panel-primary'>
 				<div class='panel-heading'>
 					<h3>{{ character.first_name }} {{ character.last_name }}</h3>
+					<p class='pull-left'>Threshhold: {{ character.tolerance_threshhold }}<p/>
+					<p class='pull-right'>Lee-way: {{ character.lee_way }}</p>
+					<div class="clearfix"></div>
 				</div>
 				<div class='panel-body'>
+					<div class='row'>
 					{% if character.family.all %}
 						<div class='col-lg-4'>
 							<h4>Family:</h4>
@@ -115,17 +119,46 @@
 					{% if character.enemies.all %}
 						<div class='col-lg-4'>
 							<h4>Enemies:</h4>
-							{% for enemyy in character.enemies.all %}
+							{% for enemy in character.enemies.all %}
 								<ul>
-									<li>{{ enemyy.first_name }} {{ enemy.last_name }}</li>
+									<li>{{ enemy.first_name }} {{ enemy.last_name }}</li>
 								</ul>
 							{% endfor %}
 						</div>
 					{% endif %}
+					</div>
+					<div class='row'>
+					{% for opinion, relationships in opinions %}
+						<div class='col-lg-6'>
+							<div class='panel panel-red'>
+								<div class='panel-heading'>
+									<h4><b>{{ opinion.care }}:</b> {{ opinion.target }}</h4>
+									<div class='col-lg-12' style='padding: 0px'>
+										<p class='pull-left'>Tolerance: {{ opinion.tolerance }}</p>
+										<p class='pull-right'>Enjoyment: {{ opinion.enjoyment }}</p>
+									</div>
+									<p class='pull-left'>Ramp: {{ opinion.ramp }}<p/>
+									<div class="clearfix"></div>
+								</div>
+								<div class='panel-body'>
+									{% for relationship in relationships %}
+										<div class='list-group'>
+											<div class='list-group-item'>
+													<h5><b>{{ relationship.aquaintance }}</b></h5>
+													<p>Impact: {{ relationship.impact }}</p>
+													<p>Ticks: {{ relationship.ticks }}</p>
+													<p>Aggravation: {{ relationship.aggravation }}</p>
+											</div>
+										</div>
+									{% endfor %}
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+					</div>
 				</div>
 			</div>
 		</div>
-	<hr>
 	{% endfor %}
 </div>
 
@@ -139,7 +172,8 @@
 			url: '/character/'+String(url)+'/',
 			async: false,
 			success: function(data){
-				console.log(data)
+				console.log(data);
+				location.reload();
 			}
 		})
 

@@ -21,7 +21,7 @@ class Character(models.Model):
 		return self.first_name+' '+self.last_name
 
 	def favour(self, aquaintance):
-
+		
 		# all their relationships with the specific person
 		relationships = Relationship.objects.filter(aquaintance=aquaintance)
 
@@ -30,13 +30,13 @@ class Character(models.Model):
 		for relationship in relationships:
 			# if they are more aggravated than they can stand, the tolerance level increases
 			if relationship.aggravation > relationship.opinion.tolerance:
-
+				
 				tolerance_level += relationship.aggravation / relationship.opinion.tolerance
 			# if they are less aggravated than they want to be, the tolerance level decreases
 			elif relationship.aggravation < relationship.opinion.enjoyment:
 
 				tolerance_level -= relationship.aggravation / relationship.opinion.enjoyment
-
+		
 		# if tolerance_level is greter than tolerance_threshhold+lee_way they are an enemy
 		if tolerance_level*len(relationships) > self.tolerance_threshhold+self.lee_way:
 			if not(aquaintance in self.enemies.all()):
@@ -107,18 +107,5 @@ class Relationship(models.Model):
 		elif self.impact == 'positive':
 			self.ticks -= 1
 			self.aggravation -= 1+self.opinion.ramp*abs(self.ticks)
-
 		self.opinion.character.favour(self.aquaintance)
-
 		self.save()
-
-# from characters.models import *
-# from characters.views import *
-# default_people()
-# char1 = Character.objects.get(pk=5)
-# char2 = Character.objects.get(pk=3)
-# care = Opinion(character=char1, care='race',ramp=1, tolerance=1.0)
-# care.save()
-# relationship = Relationship(opinion=care, aquaintance=char2, impact='false')
-# relationship.save()
-# interaction(char2, char1, care, 'negative')
