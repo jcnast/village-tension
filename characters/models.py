@@ -15,7 +15,7 @@ class Character(models.Model):
 	# total amount of shit they can take
 	tolerance_threshhold = models.FloatField(default=5.0)
 	# the amount of in-between someone can be before they are an enemey or ally
-	lee_way = models.FloatField(default=5.0)
+	lee_way = models.FloatField(default=2.0)
 
 	def __unicode__(self, *args, **kwargs):
 		return self.first_name+' '+self.last_name
@@ -29,23 +29,22 @@ class Character(models.Model):
 		tolerance_level = 0
 		for relationship in relationships:
 			# if they are more aggravated than they can stand, the tolerance level increases
-			if relationship.aggravation > relationship.opinion.tolerance:
-				
+			if relationship.aggravation >= relationship.opinion.tolerance:
+
 				tolerance_level += relationship.aggravation / relationship.opinion.tolerance
 			# if they are less aggravated than they want to be, the tolerance level decreases
-			elif relationship.aggravation < relationship.opinion.enjoyment:
+			elif relationship.aggravation <= relationship.opinion.enjoyment:
 
 				tolerance_level -= relationship.aggravation / relationship.opinion.enjoyment
-		
-		# if tolerance_level is greter than tolerance_threshhold+lee_way they are an enemy
-		if tolerance_level*len(relationships) > self.tolerance_threshhold+self.lee_way:
+		# if tolerance_level PER RELATIONSHIP is greter than tolerance_threshhold+lee_way they are an enemy
+		if tolerance_level/len(relationships) >= self.tolerance_threshhold+self.lee_way:
 			if not(aquaintance in self.enemies.all()):
 				self.enemies.add(aquaintance)
 			#remove person from allies if they were there
 			if aquaintance in self.allies.all():
 				self.allies.remove(aquaintance)
-		# if tolerance_level is less than tolerance_threshhold-lee_way they are an ally
-		elif tolerance_level*len(relationships) < self.tolerance_threshhold-self.lee_way:
+		# if tolerance_level PER RELATIONSHIP is less than tolerance_threshhold-lee_way they are an ally
+		elif tolerance_level/len(relationships) <= self.tolerance_threshhold-self.lee_way:
 			if not(aquaintance in self.allies.all()):
 				self.allies.add(aquaintance)
 			#remove person from enemies if they were there
@@ -66,8 +65,10 @@ class Opinion(models.Model):
 	# what they care about (political party, crimes, race, religion, family...)
 	care = models.CharField(max_length=50)
 
-	#What about that care they are interested in (positively). A racist would have their target be the race(s) they dislike
-	target = models.CharField(max_length=200)
+	# What about that care they like
+	likes = models.CharField(max_length=200)
+	# What about that care they dislike
+	dislikes = models.CharField(max_length=200)
 
 	# how slowly/quickly they hate you per time you piss them off
 	ramp = models.FloatField(default=0.0) #set value (float between 0.0 and 1.0)
