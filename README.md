@@ -14,3 +14,16 @@ It will make every character unique in the game in terms of interactions, goals,
 The UI is basic, as are the current beggining commands, but the ineteractions are complex and varied.
 
 For more variations, spam click the generate-characters button to have as many characters as possible. Though this will require more interactions to get a feel for the full scope of what this can provide. For further elaboration (unless you want to read the code) feel free to contact me.
+
+***************************
+
+To play the game:
+
+
+You will need django 1.6 (1.7 should work too).
+
+There may be some paths that need to be changed to work with you set-up as well
+
+Once it is installed, you should only need to go into a terminal and into this game's main folder and type:
+
+'python manage.py runserver'
